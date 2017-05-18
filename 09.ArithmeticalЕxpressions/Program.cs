@@ -21,24 +21,23 @@ namespace _09.ArithmeticalЕxpressions
         static void Main(string[] args)
         { //condition: https://github.com/TelerikAcademy/CSharp-Part-2/blob/master/Topics/05.%20Using-Classes-and-Objects/homework/09.%20Arithmetical%20expressions/README.md
             //simulate -> DELETE after complete!
-            StringReader reader = new StringReader("2+(-3)");
+            StringReader reader = new StringReader("(-2-5)-1+-7");
             Console.SetIn(reader);                //(3+5.3)*2.7-ln(22)/pow(2.2,-1.7)
-
-            //input
+                                                  //(-2-5)-1+-7  за прихващане на отрицателни числа
+                                                  //input
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; //console settings
-            input = Console.ReadLine().Replace(" ", "").ToLower(); //clean white-space from user
+            input = Console.ReadLine().Replace(" ", string.Empty).ToLower(); //clean white-space from user
 
             //converter
             InfixToReversePolishNotation(input);
 
             //test output
-            Console.WriteLine(string.Join("", outputQueue));
+            Console.WriteLine(string.Join(" ", outputQueue));
         }
 
         private static void InfixToReversePolishNotation(string input) //based on "Shunting-yard algorithm"
         {
             StringBuilder tempToken = new StringBuilder();
-            string currentTokenType = null;
             string previousTokenType = TokenType.NoneToken;
 
             input = input + " "; //this white-space is needed to check correctly if last element is digit token
@@ -60,20 +59,21 @@ namespace _09.ArithmeticalЕxpressions
                 //2.token is arithmeticOperator
                 if (Array.IndexOf(arithmeticOperator, input[i].ToString()) > -1)
                 {
-                    currentTokenType = TokenType.ArithmeticOperator;
-
-                    AddTokenToStackOrQueue(currentTokenType, input[i].ToString(), previousTokenType);
-                    if (previousTokenType != currentTokenType) previousTokenType = currentTokenType;
-                    tempToken.Clear();
+                    if (input[i].ToString() == "-")
+                    {
+                        LookingForNegativeDigit(tempToken, input, i, previousTokenType);
+                    }
+                    else
+                    {
+                        ArithmeticOperatorProcessing(input[i].ToString());
+                    }
+                    if (previousTokenType != TokenType.ArithmeticOperator) previousTokenType = TokenType.ArithmeticOperator;
                 }
                 //3.token is parenthesesAndComma
                 else if (Array.IndexOf(parenthesesAndComma, input[i].ToString()) > -1)
                 {
-                    currentTokenType = TokenType.ParenthesesAndComma;
-
-                    AddTokenToStackOrQueue(currentTokenType, input[i].ToString(), previousTokenType);
-                    if (previousTokenType != currentTokenType) previousTokenType = currentTokenType;
-                    tempToken.Clear();
+                    ParenthesesAndCommaProcessing(input[i].ToString());
+                    if (previousTokenType != TokenType.ParenthesesAndComma) previousTokenType = TokenType.ParenthesesAndComma;
                 }
                 //4.all above false, so current token IS, or it's a PART of mathematicalFunctions
                 //4a.token is a part of mathematicalFunctions
@@ -84,11 +84,10 @@ namespace _09.ArithmeticalЕxpressions
                 //4b.token is mathematicalFunctions
                 if (Array.IndexOf(mathematicalFunctions, tempToken.ToString()) > -1)
                 {
-                    currentTokenType = TokenType.MathematicalFunctions;
-
-                    AddTokenToStackOrQueue(currentTokenType, tempToken.ToString(), previousTokenType);
-                    if (previousTokenType != currentTokenType) previousTokenType = currentTokenType;
+                    operatorsStack.Push(tempToken.ToString());
                     tempToken.Clear();
+
+                    if (previousTokenType != TokenType.MathematicalFunctions) previousTokenType = TokenType.MathematicalFunctions;
                 }
             }
 
@@ -100,57 +99,65 @@ namespace _09.ArithmeticalЕxpressions
             }
         }
 
-        private static void AddTokenToStackOrQueue(string currentTokenType, string tempToken, string previousTokenType)
+        private static void LookingForNegativeDigit(StringBuilder tempToken, string input, int i, string previousTokenType)
         {
-            if (currentTokenType == TokenType.ArithmeticOperator)
+            if (previousTokenType != TokenType.NoneToken && (input[i - 1].ToString() == "," || input[i - 1].ToString() == "(") && char.IsDigit(input[i + 1])) //1.when we have negative operator (for negative digit) IN function like: "pow(2,-1.5)"
+            {                                                                                                                                                 //2.when we have negative operator (for negative digit) SURROUND with parentheses, like: "2 + (-4)" or "pow(-2,6)"
+                tempToken.Append(input[i]);
+            }
+            else if ((previousTokenType == TokenType.NoneToken || previousTokenType == TokenType.ArithmeticOperator) && char.IsDigit(input[i + 1])) //1.when we have negative operator (for negative digit) at the BEGINNING, like: -6 + 4
+            {                                                                                                                                       //2.when we have negative operator (for negative digit) after ANOTHER arithmetic operator, like: 10 + -2
+                tempToken.Append(input[i]);
+            }
+            else
             {
-                while (true)
+                ArithmeticOperatorProcessing(input[i].ToString());
+            }
+        }
+
+        private static void ArithmeticOperatorProcessing(string tempToken)
+        {
+            while (true)
+            {
+                //get ArithmeticOperators priority 
+                sbyte currentOperatorPriorityIndex = (sbyte)Array.IndexOf(arithmeticOperator, tempToken);
+
+                sbyte lastStackOperatorPriorityIndex = -1;
+                if (operatorsStack.Count > 0)
                 {
-                    //get ArithmeticOperators priority 
-                    sbyte currentOperatorPriorityIndex = (sbyte)Array.IndexOf(arithmeticOperator, tempToken);
+                    lastStackOperatorPriorityIndex = (sbyte)Array.IndexOf(arithmeticOperator, operatorsStack.Peek());
+                }
 
-                    sbyte lastStackOperatorPriorityIndex = -1;
-                    if (operatorsStack.Count > 0)
-                    {
-                        lastStackOperatorPriorityIndex = (sbyte)Array.IndexOf(arithmeticOperator, operatorsStack.Peek());
-                    }
+                //check ArithmeticOperators priority and Push them to operatorsStack or to outputQueue
+                if (currentOperatorPriorityIndex > lastStackOperatorPriorityIndex)  //if "lastStackOperatorPriorityIndex" is still "-1", at the last position in stack, there is NO ArithmeticOperator
+                {
+                    operatorsStack.Push(tempToken.ToString());
+                    break;
+                }
+                else if (currentOperatorPriorityIndex < lastStackOperatorPriorityIndex)
+                {
+                    outputQueue.Enqueue(operatorsStack.Pop());
+                }
+            }
+        }
 
-                    //check ArithmeticOperators priority and Push them to operatorsStack or to outputQueue
-                    if (currentOperatorPriorityIndex > lastStackOperatorPriorityIndex)  //if "lastStackOperatorPriorityIndex" is still "-1", at the last position in stack, there is NO ArithmeticOperator
-                    {
-                        operatorsStack.Push(tempToken);
-                        break;
-                    }
-                    else if (currentOperatorPriorityIndex < lastStackOperatorPriorityIndex)
+        private static void ParenthesesAndCommaProcessing(string tempToken)
+        {
+            switch (tempToken.ToString())
+            {
+                case "(": operatorsStack.Push(tempToken.ToString()); break;
+
+                case ",":
+                    PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
+                    break;
+
+                case ")":
+                    PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
+                    if (operatorsStack.Count > 0 && (Array.IndexOf(mathematicalFunctions, operatorsStack.Peek())) > -1) //If the top of the stack is a function, pop it onto the queue.
                     {
                         outputQueue.Enqueue(operatorsStack.Pop());
                     }
-                }
-
-            }
-            else if (currentTokenType == TokenType.ParenthesesAndComma)
-            {
-                switch (tempToken)
-                {
-                    case "(": operatorsStack.Push(tempToken); break;
-
-                    case ",":
-                        PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
-                        break;
-
-                    case ")":
-                        PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
-                        operatorsStack.Pop(); //Last token in stack need to be left parenthesis (see above operations), so pop this token.
-                        if (operatorsStack.Count > 0 && (Array.IndexOf(mathematicalFunctions, operatorsStack.Peek())) > -1) //If the top of the stack is a function, pop it onto the queue.
-                        {
-                            outputQueue.Enqueue(operatorsStack.Pop());
-                        }
-                        break;
-                }
-            }
-            else if (currentTokenType == TokenType.MathematicalFunctions)
-            {
-                operatorsStack.Push(tempToken);
+                    break;
             }
         }
 
@@ -166,6 +173,7 @@ namespace _09.ArithmeticalЕxpressions
                 }
                 else if (operatorsStack.Peek() == "(")
                 {
+                    operatorsStack.Pop(); //Last token in stack need to be left parenthesis (see above operations), so pop this token.
                     break;
                 }
                 LeftParenthesesCheckerExeption();
