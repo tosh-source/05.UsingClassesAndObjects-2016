@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-//using System.Linq;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using _09.ArithmeticalЕxpressions.Objects;
@@ -13,7 +13,11 @@ namespace _09.ArithmeticalЕxpressions
     {
         static Stack<string> operatorsStack = new Stack<string>(); //hold not yet used operators
         static Queue<string> outputQueue = new Queue<string>();
-        static string[] arithmeticOperator = { "-", "+", "/", "*" };  //sorted by their Priority
+        static string[] arithmeticOperator = { "-", "+", "/", "*" };
+        static char[][] arithmeticOperatorPrecedence = {            //operator by their Priority
+            new char[] {'-', '+'},                                  //precedence 1
+            new char[] {'/', '*'}                                   //precedence 2
+        };
         static string[] parenthesesAndComma = { "(", ",", ")" };
         static string[] mathematicalFunctions = { "ln", "sqrt", "pow" };
         static string input = string.Empty;
@@ -65,7 +69,7 @@ namespace _09.ArithmeticalЕxpressions
                     }
                     else
                     {
-                        ArithmeticOperatorProcessing(input[i].ToString());
+                        ArithmeticOperatorProcessing(input[i]);
                     }
                     if (previousTokenType != TokenType.ArithmeticOperator) previousTokenType = TokenType.ArithmeticOperator;
                 }
@@ -111,33 +115,49 @@ namespace _09.ArithmeticalЕxpressions
             }
             else
             {
-                ArithmeticOperatorProcessing(input[i].ToString());
+                ArithmeticOperatorProcessing(input[i]);
             }
         }
 
-        private static void ArithmeticOperatorProcessing(string tempToken)
+        private static void ArithmeticOperatorProcessing(char tempToken)
         {
             while (true)
             {
-                //get ArithmeticOperators priority 
-                sbyte currentOperatorPriorityIndex = (sbyte)Array.IndexOf(arithmeticOperator, tempToken);
+                //get ArithmeticOperators priority(Precedence)
+                sbyte currentOperatorPrecedence = ArithmeticOperatorPrecedenceProcessing(tempToken);
 
-                sbyte lastStackOperatorPriorityIndex = -1;
+                sbyte lastStackOperatorPrecedence = 0;
                 if (operatorsStack.Count > 0)
                 {
-                    lastStackOperatorPriorityIndex = (sbyte)Array.IndexOf(arithmeticOperator, operatorsStack.Peek());
+                    lastStackOperatorPrecedence = ArithmeticOperatorPrecedenceProcessing(operatorsStack.Peek()[0]);  //когато оптимизирам програмата и махна стринговете, това "[0]" също трябва да изчезне!!!
                 }
 
                 //check ArithmeticOperators priority and Push them to operatorsStack or to outputQueue
-                if (currentOperatorPriorityIndex > lastStackOperatorPriorityIndex)  //if "lastStackOperatorPriorityIndex" is still "-1", at the last position in stack, there is NO ArithmeticOperator
+                if (currentOperatorPrecedence > lastStackOperatorPrecedence)  //if "lastStackOperatorPrecedence" is still "0", at the last position in the stack, has NO ArithmeticOperator
                 {
                     operatorsStack.Push(tempToken.ToString());
                     break;
                 }
-                else if (currentOperatorPriorityIndex < lastStackOperatorPriorityIndex)
+                else if (currentOperatorPrecedence <= lastStackOperatorPrecedence)
                 {
                     outputQueue.Enqueue(operatorsStack.Pop());
                 }
+            }
+        }
+
+        private static sbyte ArithmeticOperatorPrecedenceProcessing(char tempToken)
+        {
+            if (arithmeticOperatorPrecedence[0].Contains(tempToken))        //Operators with Precedence 1
+            {
+                return 1;
+            }
+            else if (arithmeticOperatorPrecedence[1].Contains(tempToken))    //Operators with Precedence 2
+            {
+                return 2;
+            }
+            else
+            {
+                return 0;
             }
         }
 
