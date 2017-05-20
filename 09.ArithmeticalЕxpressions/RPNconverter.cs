@@ -1,45 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using _09.ArithmeticalЕxpressions.Objects;
 
 namespace _09.ArithmeticalЕxpressions
 {
-    class Program
+    class RPNconverter  //convert Infix to Reverse Polish Notation
     {
-        static Stack<string> operatorsStack = new Stack<string>(); //hold not yet used operators
-        static Queue<string> outputQueue = new Queue<string>();
-        static string[] arithmeticOperator = { "-", "+", "/", "*" };
-        static char[][] arithmeticOperatorPrecedence = {            //operator by their Priority
-            new char[] {'-', '+'},                                  //precedence 1
-            new char[] {'/', '*'}                                   //precedence 2
+        private static Stack<string> operatorsStack = new Stack<string>(); //hold not yet used operators
+        private static Queue<string> outputQueue = new Queue<string>();
+        private static string[] arithmeticOperator = { "-", "+", "/", "*" };
+        private static char[][] arithmeticOperatorPrecedence = {            //operator by their Priority
+            new char[] {'-', '+'},                                          //precedence 1
+            new char[] {'/', '*'}                                           //precedence 2
         };
-        static string[] parenthesesAndComma = { "(", ",", ")" };
-        static string[] mathematicalFunctions = { "ln", "sqrt", "pow" };
-        static string input = string.Empty;
+        private static string[] parenthesesAndComma = { "(", ",", ")" };
+        private static string[] mathematicalFunctions = { "ln", "sqrt", "pow" };
 
-        static void Main(string[] args)
-        { //condition: https://github.com/TelerikAcademy/CSharp-Part-2/blob/master/Topics/05.%20Using-Classes-and-Objects/homework/09.%20Arithmetical%20expressions/README.md
-            //simulate -> DELETE after complete!
-            StringReader reader = new StringReader("(-2-5)-1+-7");
-            Console.SetIn(reader);                //(3+5.3)*2.7-ln(22)/pow(2.2,-1.7)
-                                                  //(-2-5)-1+-7  за прихващане на отрицателни числа
-                                                  //input
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; //console settings
-            input = Console.ReadLine().Replace(" ", string.Empty).ToLower(); //clean white-space from user
+        public static string Convert(string infixNotation)
+        {
+            string output = string.Empty;
 
-            //converter
-            InfixToReversePolishNotation(input);
+            infixNotation = infixNotation.Replace(" ", string.Empty).ToLower(); //clean white-space from user
+            output = ConvertToRPN(infixNotation);
 
-            //test output
-            Console.WriteLine(string.Join(" ", outputQueue));
+            return output;
         }
 
-        private static void InfixToReversePolishNotation(string input) //based on "Shunting-yard algorithm"
+        private static string ConvertToRPN(string input) //based on "Shunting-yard algorithm"
         {
             StringBuilder tempToken = new StringBuilder();
             string previousTokenType = TokenType.NoneToken;
@@ -98,9 +86,15 @@ namespace _09.ArithmeticalЕxpressions
             //roll back stack to queue
             for (int i = operatorsStack.Count - 1; i >= 0; i--)
             {
-                ErrorIfFoundParentheses(operatorsStack.Peek());
+                if (operatorsStack.Peek() == "(") //Error if found parentheses
+                {
+                    throw new AggregateException("Invalid Expression! There is one more Parenthesis!");
+                }
+
                 outputQueue.Enqueue(operatorsStack.Pop());
             }
+
+            return string.Join(" ", outputQueue);
         }
 
         private static void LookingForNegativeDigit(StringBuilder tempToken, string input, int i, string previousTokenType)
@@ -173,6 +167,7 @@ namespace _09.ArithmeticalЕxpressions
 
                 case ")":
                     PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
+                    operatorsStack.Pop(); //Last token in stack need to be left parenthesis (see above operations), so pop this token.
                     if (operatorsStack.Count > 0 && (Array.IndexOf(mathematicalFunctions, operatorsStack.Peek())) > -1) //If the top of the stack is a function, pop it onto the queue.
                     {
                         outputQueue.Enqueue(operatorsStack.Pop());
@@ -193,27 +188,17 @@ namespace _09.ArithmeticalЕxpressions
                 }
                 else if (operatorsStack.Peek() == "(")
                 {
-                    operatorsStack.Pop(); //Last token in stack need to be left parenthesis (see above operations), so pop this token.
                     break;
                 }
                 LeftParenthesesCheckerExeption();
             }
         }
 
-        //EXEPTIONS
         private static void LeftParenthesesCheckerExeption()
         {
             if (operatorsStack.Count == 0) //If left parentheses is not reached -> error 
             {
                 throw new ArgumentException("Invalid Expression, no left parentheses!");
-            }
-        }
-
-        private static void ErrorIfFoundParentheses(string lastStackToken)
-        {
-            if (lastStackToken == "(")
-            {
-                throw new AggregateException("Invalid Expression! There is one more Parenthesis!");
             }
         }
     }
