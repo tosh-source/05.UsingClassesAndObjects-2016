@@ -12,8 +12,8 @@ namespace _09.ArithmeticalЕxpressions
             
             //simulate -> DELETE after complete!
             StringReader reader = new StringReader("(3 + 5.3) * 2.7 - ln(22)/pow(2.2,-1.7)");
-            Console.SetIn(reader);                //(3+5.3)*2.7-ln(22)/pow(2.2,-1.7)
-                                                  а
+            Console.SetIn(reader);
+                                                  
             
             //input
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; //console settings
@@ -28,8 +28,3 @@ namespace _09.ArithmeticalЕxpressions
         }
     }
 }
-
-//TESTS
-//infix: "(-2 - 5) - 1 + -7"  //very interesting test that show flexibility of class "RPNconverter" to catching negative digits 
-//RPN:
-//result (in infix): -15
