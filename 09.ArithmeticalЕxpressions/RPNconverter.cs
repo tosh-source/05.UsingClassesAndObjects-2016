@@ -17,6 +17,11 @@ namespace _09.ArithmeticalЕxpressions
         private static string[] parenthesesAndComma = { "(", ",", ")" };
         private static string[] mathematicalFunctions = { "ln", "sqrt", "pow" };
 
+        private RPNconverter()
+        {
+            //the "RPNconverter" is static class
+        }
+
         public static string Convert(string infixNotation)
         {
             string output = string.Empty;
