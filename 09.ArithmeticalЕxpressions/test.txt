@@ -5,4 +5,16 @@
 
 infix: 3 + 4 * 2 / (1 - 5)
 RPN:   342*15-/+
-result(of both above): 1
+result: 1
+
+=========================================
+
+//infix: "(-2 - 5) - 1 + -7"  //very interesting test that show flexibility of class "RPNconverter" to catching negative digits 
+//RPN:
+//result: -15
+
+=========================================
+
+infix: (3+5.3)*2.7-ln(22)/pow(2.2,-1.7)
+RPN: 3 5.3 + 2.7 * 22 ln 2.2 -1.7 pow / -
+result:

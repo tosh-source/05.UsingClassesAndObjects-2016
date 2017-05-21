@@ -12,15 +12,15 @@ namespace _09.ArithmeticalЕxpressions
             
             //simulate -> DELETE after complete!
             StringReader reader = new StringReader("(3 + 5.3) * 2.7 - ln(22)/pow(2.2,-1.7)");
-            Console.SetIn(reader);
-                                                  
+            Console.SetIn(reader);     
             
             //input
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture; //console settings
             string input = Console.ReadLine();
 
             //convert infix to Reverse Polish notation
-            string outputToRPN = RPNconverter.Convert(input);
+
+             string outputToRPN = RPNconverter.Convert(input);
 
             //test output
             Console.WriteLine(string.Join(" ", outputToRPN));
