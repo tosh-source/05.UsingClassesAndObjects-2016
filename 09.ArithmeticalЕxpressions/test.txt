@@ -9,8 +9,8 @@ result: 1
 
 =========================================
 
-//infix: "(-2 - 5) - 1 + -7"  //very interesting test that show flexibility of class "RPNconverter" to catching negative digits 
-//RPN:
+//infix: (-2 - 5) - 1 + -7  <--very interesting test that show flexibility of class "RPNconverter" to catching negative digits 
+//RPN: -2 5 - 1 - -7 +
 //result: -15
 
 =========================================

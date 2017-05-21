@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
 
 namespace _09.ArithmeticalЕxpressions
@@ -20,7 +21,7 @@ namespace _09.ArithmeticalЕxpressions
 
             //convert infix to Reverse Polish notation
 
-             string outputToRPN = RPNconverter.Convert(input);
+             Queue <string> outputToRPN = RPNconverter.ConvertToRPN(input);
 
             //test output
             Console.WriteLine(string.Join(" ", outputToRPN));

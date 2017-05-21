@@ -22,31 +22,22 @@ namespace _09.ArithmeticalЕxpressions
             //the "RPNconverter" is static class
         }
 
-        public static string Convert(string infixNotation)
-        {
-            string output = string.Empty;
-
-            infixNotation = infixNotation.Replace(" ", string.Empty).ToLower(); //clean white-space from user
-            output = ConvertToRPN(infixNotation);
-
-            return output;
-        }
-
-        private static string ConvertToRPN(string input) //based on "Shunting-yard algorithm"
+        public static Queue<string> ConvertToRPN(string infix) //based on "Shunting-yard algorithm"
         {
             StringBuilder tempToken = new StringBuilder();
             string previousTokenType = TokenType.NoneToken;
 
-            input = input + " "; //this white-space is needed to check correctly if last element is digit token
+            infix = infix.Replace(" ", string.Empty).ToLower(); //clean white-space from user
+            infix = infix + " ";                                //this white-space is needed to check correctly if the last element is digit token
 
             //calculation
-            for (int i = 0; i < input.Length; i++) //read token by token
+            for (int i = 0; i < infix.Length; i++) //read token by token
             {
                 //1.token is digit
-                if (char.IsDigit(input[i]) == true || (input[i] == '.' && previousTokenType == TokenType.Digit)) //(input[i] == '.' && previousTokenType == "digit") <- this will no parse wrong input like comma: 2,2 //Най-добре да направя ексепшън и подавайки му 2,2 то да каже, че е прешно въведен формат
+                if (char.IsDigit(infix[i]) == true || (infix[i] == '.' && previousTokenType == TokenType.Digit)) //(infix[i] == '.' && previousTokenType == "digit") <- this will no parse wrong infix like comma: 2,2 //Най-добре да направя ексепшън и подавайки му 2,2 то да каже, че е прешно въведен формат
                 {
                     if (previousTokenType != TokenType.Digit) previousTokenType = TokenType.Digit;
-                    tempToken.Append(input[i]);
+                    tempToken.Append(infix[i]);
                 }
                 else if (previousTokenType == TokenType.Digit)
                 {
@@ -54,29 +45,29 @@ namespace _09.ArithmeticalЕxpressions
                     tempToken.Clear();
                 }
                 //2.token is arithmeticOperator
-                if (Array.IndexOf(arithmeticOperator, input[i].ToString()) > -1)
+                if (Array.IndexOf(arithmeticOperator, infix[i].ToString()) > -1)
                 {
-                    if (input[i].ToString() == "-")
+                    if (infix[i].ToString() == "-")
                     {
-                        LookingForNegativeDigit(tempToken, input, i, previousTokenType);
+                        LookingForNegativeDigit(tempToken, infix, i, previousTokenType);
                     }
                     else
                     {
-                        ArithmeticOperatorProcessing(input[i]);
+                        ArithmeticOperatorProcessing(infix[i]);
                     }
                     if (previousTokenType != TokenType.ArithmeticOperator) previousTokenType = TokenType.ArithmeticOperator;
                 }
                 //3.token is parenthesesAndComma
-                else if (Array.IndexOf(parenthesesAndComma, input[i].ToString()) > -1)
+                else if (Array.IndexOf(parenthesesAndComma, infix[i].ToString()) > -1)
                 {
-                    ParenthesesAndCommaProcessing(input[i].ToString());
+                    ParenthesesAndCommaProcessing(infix[i].ToString());
                     if (previousTokenType != TokenType.ParenthesesAndComma) previousTokenType = TokenType.ParenthesesAndComma;
                 }
                 //4.all above false, so current token IS, or it's a PART of mathematicalFunctions
                 //4a.token is a part of mathematicalFunctions
                 else if (previousTokenType != TokenType.Digit)
                 {
-                    tempToken.Append(input[i]);
+                    tempToken.Append(infix[i]);
                 }
                 //4b.token is mathematicalFunctions
                 if (Array.IndexOf(mathematicalFunctions, tempToken.ToString()) > -1)
@@ -99,22 +90,22 @@ namespace _09.ArithmeticalЕxpressions
                 outputQueue.Enqueue(operatorsStack.Pop());
             }
 
-            return string.Join(" ", outputQueue);
+            return outputQueue;
         }
 
-        private static void LookingForNegativeDigit(StringBuilder tempToken, string input, int i, string previousTokenType)
+        private static void LookingForNegativeDigit(StringBuilder tempToken, string infix, int i, string previousTokenType)
         {
-            if (previousTokenType != TokenType.NoneToken && (input[i - 1].ToString() == "," || input[i - 1].ToString() == "(") && char.IsDigit(input[i + 1])) //1.when we have negative operator (for negative digit) IN function like: "pow(2,-1.5)"
+            if (previousTokenType != TokenType.NoneToken && (infix[i - 1].ToString() == "," || infix[i - 1].ToString() == "(") && char.IsDigit(infix[i + 1])) //1.when we have negative operator (for negative digit) IN function like: "pow(2,-1.5)"
             {                                                                                                                                                 //2.when we have negative operator (for negative digit) SURROUND with parentheses, like: "2 + (-4)" or "pow(-2,6)"
-                tempToken.Append(input[i]);
+                tempToken.Append(infix[i]);
             }
-            else if ((previousTokenType == TokenType.NoneToken || previousTokenType == TokenType.ArithmeticOperator) && char.IsDigit(input[i + 1])) //1.when we have negative operator (for negative digit) at the BEGINNING, like: -6 + 4
+            else if ((previousTokenType == TokenType.NoneToken || previousTokenType == TokenType.ArithmeticOperator) && char.IsDigit(infix[i + 1])) //1.when we have negative operator (for negative digit) at the BEGINNING, like: -6 + 4
             {                                                                                                                                       //2.when we have negative operator (for negative digit) after ANOTHER arithmetic operator, like: 10 + -2
-                tempToken.Append(input[i]);
+                tempToken.Append(infix[i]);
             }
             else
             {
-                ArithmeticOperatorProcessing(input[i]);
+                ArithmeticOperatorProcessing(infix[i]);
             }
         }
 
