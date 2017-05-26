@@ -22,7 +22,7 @@ namespace _09.ArithmeticalЕxpressions
             //the "RPNconverter" is static class
         }
 
-        public static Queue<string> ConvertToRPN(string infix) //based on "Shunting-yard algorithm"
+        public static Queue<string> Converting(string infix) //based on "Shunting-yard algorithm"
         {
             StringBuilder tempToken = new StringBuilder();
             string previousTokenType = TokenType.NoneToken;

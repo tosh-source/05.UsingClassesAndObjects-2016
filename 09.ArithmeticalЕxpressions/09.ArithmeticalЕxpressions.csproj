@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
-    <Compile Include="RPNtoInfix.cs" />
+    <Compile Include="RPNcalculator.cs" />
     <Compile Include="TokenTypes.cs" />
     <Compile Include="RPNconverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
