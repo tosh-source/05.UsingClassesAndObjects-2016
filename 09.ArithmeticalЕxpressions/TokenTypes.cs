@@ -4,21 +4,20 @@ using System.Text;
 
 namespace _09.ArithmeticalЕxpressions
 {
-    static class TokenType
+    public static class TokenType
     {
-        //field
-        private static string noneToken;
-        private static string digit;
-        private static string arithmeticOperator;
-        private static string parenthesesAndComma;
-        private static string mathematicalFunctions;
+        //fields
+        private static string noneToken = "noneToken";
+        private static string digit = "digit";
+        private static string arithmeticOperator = "arithmeticOperator";
+        private static string parenthesesAndComma = "parenthesesAndComma";
+        private static string mathematicalFunctions = "mathematicalFunctions";
 
-        //property
+        //properties
         public static string NoneToken
         {
             get
             {
-                noneToken = "noneToken";
                 return noneToken;
             }
         }
@@ -26,7 +25,6 @@ namespace _09.ArithmeticalЕxpressions
         {
             get
             {
-                digit = "digit";
                 return digit;
             }
         }
@@ -34,7 +32,6 @@ namespace _09.ArithmeticalЕxpressions
         {
             get
             {
-                arithmeticOperator = "arithmeticOperator";
                 return arithmeticOperator;
             }
         }
@@ -42,7 +39,6 @@ namespace _09.ArithmeticalЕxpressions
         {
             get
             {
-                parenthesesAndComma = "parenthesesAndComma";
                 return parenthesesAndComma;
             }
         }
@@ -50,7 +46,6 @@ namespace _09.ArithmeticalЕxpressions
         {
             get
             {
-                mathematicalFunctions = "mathematicalFunctions";
                 return mathematicalFunctions;
             }
         }

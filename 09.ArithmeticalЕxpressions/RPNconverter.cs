@@ -5,22 +5,17 @@ using System.Text;
 
 namespace _09.ArithmeticalЕxpressions
 {
-    class RPNconverter  //convert Infix to Reverse Polish Notation
+    public static class RPNconverter  //convert Infix to Reverse Polish Notation
     {
         private static Stack<string> operatorsStack = new Stack<string>(); //hold not yet used operators
         private static Queue<string> outputQueue = new Queue<string>();
-        private static string[] arithmeticOperator = { "-", "+", "/", "*" };
+        private static char[] arithmeticOperator = { '-', '+', '/', '*' };
         private static char[][] arithmeticOperatorPrecedence = {            //operator by their Priority
             new char[] {'-', '+'},                                          //precedence 1
             new char[] {'/', '*'}                                           //precedence 2
         };
-        private static string[] parenthesesAndComma = { "(", ",", ")" };
+        private static char[] parenthesesAndComma = { '(', ',', ')' };
         private static string[] mathematicalFunctions = { "ln", "sqrt", "pow" };
-
-        private RPNconverter()
-        {
-            //the "RPNconverter" is static class
-        }
 
         public static Queue<string> Converting(string infix) //based on "Shunting-yard algorithm"
         {
@@ -45,7 +40,7 @@ namespace _09.ArithmeticalЕxpressions
                     tempToken.Clear();
                 }
                 //2.token is arithmeticOperator
-                if (Array.IndexOf(arithmeticOperator, infix[i].ToString()) > -1)
+                if (Array.IndexOf(arithmeticOperator, infix[i]) > -1)
                 {
                     if (infix[i].ToString() == "-")
                     {
@@ -58,9 +53,9 @@ namespace _09.ArithmeticalЕxpressions
                     if (previousTokenType != TokenType.ArithmeticOperator) previousTokenType = TokenType.ArithmeticOperator;
                 }
                 //3.token is parenthesesAndComma
-                else if (Array.IndexOf(parenthesesAndComma, infix[i].ToString()) > -1)
+                else if (Array.IndexOf(parenthesesAndComma, infix[i]) > -1)
                 {
-                    ParenthesesAndCommaProcessing(infix[i].ToString());
+                    ParenthesesAndCommaProcessing(infix[i]);
                     if (previousTokenType != TokenType.ParenthesesAndComma) previousTokenType = TokenType.ParenthesesAndComma;
                 }
                 //4.all above false, so current token IS, or it's a PART of mathematicalFunctions
@@ -95,7 +90,7 @@ namespace _09.ArithmeticalЕxpressions
 
         private static void LookingForNegativeDigit(StringBuilder tempToken, string infix, int i, string previousTokenType)
         {
-            if (previousTokenType != TokenType.NoneToken && (infix[i - 1].ToString() == "," || infix[i - 1].ToString() == "(") && char.IsDigit(infix[i + 1])) //1.when we have negative operator (for negative digit) IN function like: "pow(2,-1.5)"
+            if (previousTokenType != TokenType.NoneToken && (infix[i - 1] == ',' || infix[i - 1] == '(') && char.IsDigit(infix[i + 1])) //1.when we have negative operator (for negative digit) IN function like: "pow(2,-1.5)"
             {                                                                                                                                                 //2.when we have negative operator (for negative digit) SURROUND with parentheses, like: "2 + (-4)" or "pow(-2,6)"
                 tempToken.Append(infix[i]);
             }
@@ -119,7 +114,7 @@ namespace _09.ArithmeticalЕxpressions
                 sbyte lastStackOperatorPrecedence = 0;
                 if (operatorsStack.Count > 0)
                 {
-                    lastStackOperatorPrecedence = ArithmeticOperatorPrecedenceProcessing(operatorsStack.Peek()[0]);  //когато оптимизирам програмата и махна стринговете, това "[0]" също трябва да изчезне!!!
+                    lastStackOperatorPrecedence = ArithmeticOperatorPrecedenceProcessing(operatorsStack.Peek()[0]);
                 }
 
                 //check ArithmeticOperators priority and Push them to operatorsStack or to outputQueue
@@ -151,17 +146,17 @@ namespace _09.ArithmeticalЕxpressions
             }
         }
 
-        private static void ParenthesesAndCommaProcessing(string tempToken)
+        private static void ParenthesesAndCommaProcessing(char tempToken)
         {
-            switch (tempToken.ToString())
+            switch (tempToken)
             {
-                case "(": operatorsStack.Push(tempToken.ToString()); break;
+                case '(': operatorsStack.Push(tempToken.ToString()); break;
 
-                case ",":
+                case ',':
                     PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
                     break;
 
-                case ")":
+                case ')':
                     PopOperatorsFromTheStack(); //Until the top of the stack is a left parenthesis, pop operators from stack and add them to queue.
                     operatorsStack.Pop(); //Last token in stack need to be left parenthesis (see above operations), so pop this token.
                     if (operatorsStack.Count > 0 && (Array.IndexOf(mathematicalFunctions, operatorsStack.Peek())) > -1) //If the top of the stack is a function, pop it onto the queue.

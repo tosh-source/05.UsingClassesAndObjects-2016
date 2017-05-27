@@ -6,7 +6,6 @@ namespace _09.ArithmeticalЕxpressions
 {
     class RPNcalculator
     {
-
         public static string Calculations(Queue<string> RPN) //based on "Reverse Polish Notation"
         {
             Stack<decimal> values = new Stack<decimal>();
@@ -106,6 +105,5 @@ namespace _09.ArithmeticalЕxpressions
         }
     }
 }
-
 
 //Notice: for Decimal vs Double visit -> https://stackoverflow.com/questions/329613/decimal-vs-double-speed

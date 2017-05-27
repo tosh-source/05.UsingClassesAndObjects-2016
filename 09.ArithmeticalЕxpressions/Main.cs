@@ -12,7 +12,7 @@ namespace _09.ArithmeticalЕxpressions
         {//condition: https://github.com/TelerikAcademy/CSharp-Part-2/blob/master/Topics/05.%20Using-Classes-and-Objects/homework/09.%20Arithmetical%20expressions/README.md
 
             //console settings
-            Console.Title = "Arithmetical Еxpressions Calculator V0.1";
+            Console.Title = "Arithmetical Expression Calculator V0.1";
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             //input
@@ -31,5 +31,5 @@ namespace _09.ArithmeticalЕxpressions
         }
     }
 }
-//Arithmetical Еxpressions Calculator V0.1
+//Arithmetical Expressions Calculator V0.1
 //based on "Reverse Polish Notation" and "Shunting-yard algorithm"
